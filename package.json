@@ -1,0 +1,57 @@
+{
+  "name": "@regrokjs/core",
+  "version": "0.0.2",
+  "description": "A lightweight state management library for react with a focus on minimal boilerplate.",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.module.js",
+  "jsnext:main": "dist/index.module.js",
+  "react-native": "dist/index.module.js",
+  "source": "src/index.js",
+  "scripts": {
+    "build": "microbundle",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/regrokjs/core.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "regrokjs",
+    "react",
+    "hooks"
+  ],
+  "author": "Marian Ban",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/regrokjs/core/issues"
+  },
+  "homepage": "https://github.com/regrokjs/core#readme",
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-react": "^7.9.4",
+    "@testing-library/jest-dom": "^5.5.0",
+    "@testing-library/react": "^10.0.3",
+    "@testing-library/react-hooks": "^3.2.1",
+    "babel-jest": "^25.4.0",
+    "jest": "^25.4.0",
+    "microbundle": "^0.11.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-test-renderer": "^16.13.1"
+  },
+  "dependencies": {
+    "immer": "^6.0.3",
+    "use-immer": "^0.4.0"
+  },
+  "peerDependencies": {
+    "react": "^16.8.3"
+  },
+  "browserslist": [
+    "defaults"
+  ]
+}
