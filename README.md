@@ -1,2 +1,2 @@
-# core
-A lightweight state management library for react with a focus on minimal boilerplate. 
+# Regrok
+A lightweight state management library for react with a focus on minimal boilerplate.
