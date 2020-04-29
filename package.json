@@ -1,6 +1,6 @@
 {
   "name": "@regrokjs/core",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "A lightweight state management library for react with a focus on minimal boilerplate.",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
@@ -10,7 +10,8 @@
   "source": "src/index.js",
   "scripts": {
     "build": "microbundle",
-    "test": "jest"
+    "test": "jest",
+    "pub": "npm run build && npm publish --access public"
   },
   "repository": {
     "type": "git",
