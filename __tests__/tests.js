@@ -10,6 +10,9 @@ const counter = createSlice({
   increment() {
     this.state.value++;
   },
+  set(value, valueTwo) {
+    this.state.value = valueTwo;
+  },
 });
 
 const store = createStore({
@@ -56,6 +59,18 @@ describe('rex', () => {
       increment();
     });
     expect(result.current[0].value).toBe(2);
+  });
+
+  it('pass arguments to methods', () => {
+    const { result } = renderHook(() => useStore(store.counter), {
+      wrapper: makeWrapper(store),
+    });
+    const [{ value }, { set }] = result.current;
+    expect(value).toBe(0);
+    act(() => {
+      set(1, 3);
+    });
+    expect(result.current[0].value).toBe(3);
   });
 
   it('should share state between components component', () => {

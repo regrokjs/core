@@ -5,10 +5,10 @@ export const useStore = (store) => {
   const { state, updateState } = useContext(RegrokContext);
   const { methods } = getMembers(store.value);
   const actions = methods.reduce((acc, method) => {
-    acc[method] = () => {
+    acc[method] = (...params) => {
       updateState((draft) => {
         const subState = draft[store.key];
-        store.value[method].call({ state: subState });
+        store.value[method].call({ state: subState }, ...params);
       });
     };
     return acc;
