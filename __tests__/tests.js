@@ -134,12 +134,28 @@ describe('selector', () => {
     expect(result.current[0].value).toBe(2);
     expect(result.current[2].getValue()).toBe(2);
   });
-  it('memoizes', () => {});
   it('throws for mutation', () => {
     const { result } = renderHook(() => useStore(store.counter), {
       wrapper: makeWrapper(store),
     });
     const [, , { getInvalid }] = result.current;
     expect(() => getInvalid()).toThrow();
+  });
+  it.skip('memoizes', () => {
+    const getValueSpy = jest.spyOn(store.counter.value, 'getValue');
+    const { result } = renderHook(() => useStore(store.counter), {
+      wrapper: makeWrapper(store),
+    });
+    const [, { increment }, { getValue }] = result.current;
+    expect(getValue()).toBe(0);
+    expect(getValue()).toBe(0);
+    expect(getValueSpy).toBeCalledTimes(1);
+    act(() => {
+      increment();
+    });
+    expect(getValue()).toBe(1);
+    expect(getValue()).toBe(1);
+    expect(getValueSpy).toBeCalledTimes(2);
+    getValueSpy.mockRestore();
   });
 });
