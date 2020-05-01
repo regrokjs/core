@@ -1,6 +1,6 @@
 # Regrok
 
-A lightweight state management library for react with a focus on minimal boilerplate.
+A lightweight state management library for react with a focus on minimal boilerplate. It uses [immer](https://github.com/immerjs/immer) internally for managing the state in an immutable way.
 
 ## Installation
 
@@ -8,7 +8,7 @@ A lightweight state management library for react with a focus on minimal boilerp
 npm i @regrokjs/core
 ```
 
-## Usage
+## Get Started
 
 ```js
 // store.js
@@ -63,3 +63,21 @@ export const App = () => {
   );
 };
 ```
+
+## Store
+
+In Regrok you can define one root store and multiple slices. When defining a store you should keep in mind the following conventions:
+
+- there can be only **one root store**
+- a store can have multiple slices
+- a **slice** is defined as an object containing
+  - `initialState` field
+    - must be an object - can't be a primitive type
+    - initialized to an empty object if omitted
+  - **actions**
+    - functions which serve are used for updating your state
+  - **selectors**
+    - functions for selecting a subset of a slice's state or for returning computed/derived values
+    - their name must start with a **get** prefix
+    - selector results are automatically memomized for better performance
+    - they can't modify state
