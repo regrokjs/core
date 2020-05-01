@@ -8,7 +8,7 @@ export const useStore = (store) => {
     throw new Error(Errors.PROVIDER_NOT_FOUND);
   }
   const { state, updateState } = context;
-  const { methods } = getMembers(store.value);
+  const { methods, getters } = getMembers(store.value);
   const actions = methods.reduce((acc, method) => {
     acc[method] = (...params) => {
       updateState((draft) => {
@@ -18,8 +18,17 @@ export const useStore = (store) => {
     };
     return acc;
   }, {});
-
-  return [state[store.key], actions];
+  const selectors = getters.reduce((acc, getter) => {
+    acc[getter] = (...params) => {
+      const subState = state[store.key];
+      return store.value[getter].call(
+        { state: Object.freeze(subState) },
+        ...params
+      );
+    };
+    return acc;
+  }, {});
+  return [state[store.key], actions, selectors];
 };
 
 function getMembers(obj) {
@@ -28,9 +37,11 @@ function getMembers(obj) {
   for (const key of Object.keys(obj)) {
     const propertyType = getTypeOfProperty(obj, key);
     if (propertyType === 'function') {
-      methods.push(key);
-    } else if (propertyType === 'getter') {
-      getters.push(getters);
+      if (key.startsWith('get')) {
+        getters.push(key);
+      } else {
+        methods.push(key);
+      }
     }
   }
   return {

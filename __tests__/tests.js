@@ -14,6 +14,13 @@ const counter = createSlice({
   set(value, valueTwo) {
     this.state.value = valueTwo;
   },
+  getValue() {
+    return this.state.value;
+  },
+  getInvalid() {
+    this.state.value++;
+    return this.state.value;
+  },
 });
 
 const store = createStore({
@@ -43,11 +50,11 @@ const Container = () => {
   );
 };
 
-describe('Regrok', () => {
-  const makeWrapper = (store) => ({ children }) => (
-    <RegrokProvider store={store}>{children}</RegrokProvider>
-  );
+const makeWrapper = (store) => ({ children }) => (
+  <RegrokProvider store={store}>{children}</RegrokProvider>
+);
 
+describe('Regrok', () => {
   it('can read state', () => {
     const { result } = renderHook(() => useStore(store.counter), {
       wrapper: makeWrapper(store),
@@ -109,5 +116,30 @@ describe('Regrok', () => {
     spy.mockImplementation(() => {});
     expect(() => render(<Container />)).toThrow(Errors.PROVIDER_NOT_FOUND);
     spy.mockRestore();
+  });
+});
+
+describe('selector', () => {
+  it('can read state', () => {
+    const { result } = renderHook(() => useStore(store.counter), {
+      wrapper: makeWrapper(store),
+    });
+    const [{ value }, { increment }, { getValue }] = result.current;
+    expect(value).toBe(0);
+    expect(getValue()).toBe(0);
+    act(() => {
+      increment();
+      increment();
+    });
+    expect(result.current[0].value).toBe(2);
+    expect(result.current[2].getValue()).toBe(2);
+  });
+  it('memoizes', () => {});
+  it('throws for mutation', () => {
+    const { result } = renderHook(() => useStore(store.counter), {
+      wrapper: makeWrapper(store),
+    });
+    const [, , { getInvalid }] = result.current;
+    expect(() => getInvalid()).toThrow();
   });
 });
