@@ -1,6 +1,8 @@
-# Regrok
+# Regrokjs
 
 A lightweight state management library for react with a focus on minimal boilerplate. It uses [immer](https://github.com/immerjs/immer) internally for managing the state in an immutable way.
+
+⚠️ Warning Regrokjs is in an alpha stage at this point. Use with caution.
 
 ## Installation
 
