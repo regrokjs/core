@@ -1,4 +1,6 @@
 import * as React from 'react';
+import memoize from 'nano-memoize';
+import produce from 'immer';
 import { RegrokProvider, createSlice, createStore, useStore } from '../src';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react-hooks';
@@ -23,8 +25,21 @@ const counter = createSlice({
   },
 });
 
+const counterTwo = createSlice({
+  initialState: {
+    value: 0,
+  },
+  increment() {
+    this.state.value++;
+  },
+  getValue() {
+    return this.state.value;
+  },
+});
+
 const store = createStore({
   counter,
+  counterTwo,
 });
 
 const Counter = ({ name }) => {
@@ -141,21 +156,49 @@ describe('selector', () => {
     const [, , { getInvalid }] = result.current;
     expect(() => getInvalid()).toThrow();
   });
-  it.skip('memoizes', () => {
+  it('memoizes values', () => {
     const getValueSpy = jest.spyOn(store.counter.value, 'getValue');
     const { result } = renderHook(() => useStore(store.counter), {
       wrapper: makeWrapper(store),
     });
-    const [, { increment }, { getValue }] = result.current;
+    let increment, getValue;
+    [, { increment }, { getValue }] = result.current;
     expect(getValue()).toBe(0);
     expect(getValue()).toBe(0);
     expect(getValueSpy).toBeCalledTimes(1);
     act(() => {
       increment();
     });
+    [, { increment }, { getValue }] = result.current;
     expect(getValue()).toBe(1);
     expect(getValue()).toBe(1);
     expect(getValueSpy).toBeCalledTimes(2);
     getValueSpy.mockRestore();
+  });
+  it('memoizes values per store', () => {
+    const getValueSpy = jest.spyOn(store.counter.value, 'getValue');
+    const getValueSpyTwo = jest.spyOn(store.counterTwo.value, 'getValue');
+    const { result } = renderHook(() => useStore(store.counter), {
+      wrapper: makeWrapper(store),
+    });
+    const { result: resultTwo } = renderHook(() => useStore(store.counterTwo), {
+      wrapper: makeWrapper(store),
+    });
+    let increment, getValue;
+    [, { increment }, { getValue }] = result.current;
+    expect(getValue()).toBe(0);
+    expect(getValue()).toBe(0);
+    act(() => {
+      increment();
+    });
+    [, { increment }, { getValue }] = result.current;
+    expect(getValue()).toBe(1);
+    expect(getValueSpy).toBeCalledTimes(2);
+    [, { increment }, { getValue }] = resultTwo.current;
+    expect(getValue()).toBe(0);
+    expect(getValueSpyTwo).toBeCalledTimes(1);
+    [, { increment }, { getValue }] = result.current;
+    expect(getValue()).toBe(1);
+    expect(getValueSpy).toBeCalledTimes(2);
   });
 });

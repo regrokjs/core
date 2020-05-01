@@ -1,6 +1,9 @@
 import { useContext } from 'react';
+import memoize from 'nano-memoize';
 import { RegrokContext } from './RegrokContext';
 import { Errors } from './constants';
+
+const memoizedSelectors = {};
 
 export const useStore = (store) => {
   const context = useContext(RegrokContext);
@@ -9,6 +12,7 @@ export const useStore = (store) => {
   }
   const { state, updateState } = context;
   const { methods, getters } = getMembers(store.value);
+
   const actions = methods.reduce((acc, method) => {
     acc[method] = (...params) => {
       updateState((draft) => {
@@ -18,16 +22,23 @@ export const useStore = (store) => {
     };
     return acc;
   }, {});
+
   const selectors = getters.reduce((acc, getter) => {
     acc[getter] = (...params) => {
-      const subState = state[store.key];
-      return store.value[getter].call(
-        { state: Object.freeze(subState) },
+      if (!memoizedSelectors[getter]) {
+        memoizedSelectors[getter] = memoize((state, method, ...rest) => {
+          return method.call({ state: Object.freeze(state) }, ...rest);
+        });
+      }
+      return memoizedSelectors[getter](
+        state[store.key],
+        store.value[getter],
         ...params
       );
     };
     return acc;
   }, {});
+
   return [state[store.key], actions, selectors];
 };
 
