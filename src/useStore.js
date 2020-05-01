@@ -1,8 +1,13 @@
 import { useContext } from 'react';
 import { RegrokContext } from './RegrokContext';
+import { Errors } from './constants';
 
 export const useStore = (store) => {
-  const { state, updateState } = useContext(RegrokContext);
+  const context = useContext(RegrokContext);
+  if (!context) {
+    throw new Error(Errors.PROVIDER_NOT_FOUND);
+  }
+  const { state, updateState } = context;
   const { methods } = getMembers(store.value);
   const actions = methods.reduce((acc, method) => {
     acc[method] = (...params) => {

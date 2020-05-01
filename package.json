@@ -11,6 +11,7 @@
   "scripts": {
     "build": "microbundle",
     "test": "jest",
+    "test:watch": "jest --watch",
     "pub": "npm run build && npm publish --access public"
   },
   "repository": {

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { RegrokProvider, createSlice, createStore, useStore } from '../src';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react-hooks';
+import { Errors } from '../src/constants';
 
 const counter = createSlice({
   initialState: {
@@ -42,7 +43,7 @@ const Container = () => {
   );
 };
 
-describe('rex', () => {
+describe('Regrok', () => {
   const makeWrapper = (store) => ({ children }) => (
     <RegrokProvider store={store}>{children}</RegrokProvider>
   );
@@ -100,5 +101,13 @@ describe('rex', () => {
     expect(rootValue).toHaveTextContent(2);
     expect(firstValue).toHaveTextContent(2);
     expect(secondValue).toHaveTextContent(2);
+  });
+
+  it('should throw a meaningful error for missing context', () => {
+    // mocking console error for preventing react polluting the console https://github.com/facebook/react/issues/11098
+    const spy = jest.spyOn(console, 'error');
+    spy.mockImplementation(() => {});
+    expect(() => render(<Container />)).toThrow(Errors.PROVIDER_NOT_FOUND);
+    spy.mockRestore();
   });
 });
