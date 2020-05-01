@@ -75,7 +75,8 @@ In Regrok you can define one root store and multiple slices. When defining a sto
     - must be an object - can't be a primitive type
     - initialized to an empty object if omitted
   - **actions**
-    - functions which serve are used for updating your state
+    - functions which serve used for updating your state
+    - each function which is not prefixed by get is an action
   - **selectors**
     - functions for selecting a subset of a slice's state or for returning computed/derived values
     - their name must start with a **get** prefix
