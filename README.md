@@ -19,8 +19,13 @@ const counter = createSlice({
   initialState: {
     value: 0,
   },
+  // action
   increment() {
     this.state.value++;
+  },
+  // selector
+  getComputedValue() {
+    return this.state.value * 10;
   },
 });
 
@@ -37,10 +42,13 @@ import { useStore } from '@regrokjs/core';
 import { store } from './store';
 
 export const Counter = ({ name }) => {
-  const [{ value }, { increment }] = useStore(store.counter);
+  const [{ value }, { increment }, { getComputedValue }] = useStore(
+    store.counter
+  );
   return (
     <div>
       <div>{value}</div>
+      <div>{getComputedValue()}</div>
       <button onClick={increment}>Increment</button>
     </div>
   );
