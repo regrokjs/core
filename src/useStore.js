@@ -10,15 +10,18 @@ export const useStore = (store) => {
   if (!context) {
     throw new Error(Errors.PROVIDER_NOT_FOUND);
   }
-  const { state, updateState } = context;
-  const { methods, getters } = getMembers(store.value);
+  const { state, getSlice } = context;
+
+  if (!getSlice(store.key)) {
+    return [{}, {}, {}];
+  }
+
+  const sliceInstance = getSlice(store.key);
+  const { methods, getters } = sliceInstance.__getMembers();
 
   const actions = methods.reduce((acc, method) => {
     acc[method] = (...params) => {
-      updateState((draft) => {
-        const subState = draft[store.key];
-        store.value[method].call({ state: subState }, ...params);
-      });
+      sliceInstance[method](...params);
     };
     return acc;
   }, {});
@@ -26,54 +29,24 @@ export const useStore = (store) => {
   const selectors = getters.reduce((acc, getter) => {
     acc[getter] = (...params) => {
       if (!memoizedSelectors[getter]) {
-        memoizedSelectors[getter] = memoize((state, method, ...rest) => {
-          return method.call({ state: Object.freeze(state) }, ...rest);
-        });
+        memoizedSelectors[getter] = memoize(
+          (state, instance, getter, ...rest) => {
+            return instance[getter](...rest);
+          }
+        );
       }
+      const subState = state[store.key];
       return memoizedSelectors[getter](
-        state[store.key],
-        store.value[getter],
+        subState,
+        sliceInstance,
+        getter,
         ...params
       );
     };
     return acc;
   }, {});
 
-  return [state[store.key], actions, selectors];
+  const result = [state[store.key], actions, selectors];
+  result.__instance = sliceInstance;
+  return result;
 };
-
-function getMembers(obj) {
-  const methods = [];
-  const getters = [];
-  for (const key of Object.keys(obj)) {
-    const propertyType = getTypeOfProperty(obj, key);
-    if (propertyType === 'function') {
-      if (key.startsWith('get')) {
-        getters.push(key);
-      } else {
-        methods.push(key);
-      }
-    }
-  }
-  return {
-    methods,
-    getters,
-  };
-}
-
-function getTypeOfProperty(object, property) {
-  var desc = Object.getOwnPropertyDescriptor(object, property);
-
-  if (desc.hasOwnProperty('value')) {
-    if (typeof object[property] === 'function') {
-      return 'function';
-    }
-    return 'data';
-  }
-
-  if (typeof desc.get === 'function' && typeof desc.set === 'function') {
-    return 'accessor';
-  }
-
-  return typeof desc.get === 'function' ? 'getter' : 'setter';
-}

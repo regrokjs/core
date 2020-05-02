@@ -1,13 +1,13 @@
-export const createStore = (obj) => {
-  const keys = Object.keys(obj);
+export const createStore = (slices) => {
+  const keys = Object.keys(slices);
   return {
     // TODO: use symbols
     keys,
     ...keys.reduce(
-      (acc, key) => ({ ...acc, [key]: { key, value: obj[key] } }),
+      (acc, key) => ({ ...acc, [key]: { key, value: slices[key] } }),
       {}
     ),
   };
 };
 
-export const createSlice = (obj) => obj;
+export const createSlice = (slices) => slices;
