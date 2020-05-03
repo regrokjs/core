@@ -13,10 +13,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import { Errors } from '../src/constants';
 
 class CounterSlice extends Slice {
-  constructor(config) {
-    super(config);
-    this.state = { value: 0 };
-  }
+  state = { value: 0 };
   increment() {
     this.setState((state) => {
       state.value++;
@@ -39,10 +36,7 @@ class CounterSlice extends Slice {
 const counter = createSlice(CounterSlice);
 
 class CounterTwoSlice extends Slice {
-  constructor(config) {
-    super(config);
-    this.state = { value: 0 };
-  }
+  state = { value: 0 };
   increment() {
     this.setState((state) => {
       state.value++;
@@ -98,6 +92,7 @@ const renderHookAsync = async () => {
 };
 
 describe('Regrok', () => {
+  // TODO: add test for mare complex initial state (not failing for nested prop)
   it('can read state', () => {
     const { result } = renderHook(() => useStore(store.counter), {
       wrapper: makeWrapper(store),

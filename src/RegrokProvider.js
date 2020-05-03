@@ -1,33 +1,43 @@
 import * as React from 'react';
-import { useRef, useLayoutEffect } from 'react';
+import { useRef } from 'react';
 import { useImmer } from 'use-immer';
 import { RegrokContext } from './RegrokContext';
 
 export const RegrokProvider = ({ store, children }) => {
-  const [state, updateState] = useImmer({});
   const ref = useRef({});
+
   const getSlice = (key) => {
     return ref.current[key];
   };
 
-  useLayoutEffect(() => {
+  let initialState;
+  if (!ref.current.__done) {
     store.keys.forEach((key) => {
-      ref.current[key] = new store[key].value({ key, updateState });
+      ref.current[key] = new store[key].value();
     });
-
-    const initialState = store.keys.reduce(
+    initialState = store.keys.reduce(
       (state, key) => ({
         ...state,
         [key]: getSlice(key).state,
       }),
       {}
     );
+  }
 
-    updateState(() => initialState);
-  }, []);
+  const [state, updateState] = useImmer(initialState);
+
+  if (!ref.current.__done) {
+    store.keys.forEach((key) => {
+      ref.current[key].__init({ key, updateState });
+    });
+    ref.current.__done = true;
+  }
 
   store.keys.forEach((key) => {
-    getSlice(key)?.__refreshState(state);
+    const slice = getSlice(key);
+    if (slice) {
+      slice.__refreshState(state);
+    }
   });
 
   const value = {

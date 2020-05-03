@@ -10,9 +10,11 @@ const isConstructor = (propertyName) => propertyName === 'constructor';
 const isPrivate = (propertyName) => propertyName.startsWith('__');
 
 export class Slice {
-  constructor({ updateState, key } = {}) {
-    //TODO: assert constructor args
+  constructor() {
     this.state = {};
+  }
+  __init({ updateState, key } = {}) {
+    //TODO: assert args
     this.__updateState = updateState;
     this.__key = key;
   }
