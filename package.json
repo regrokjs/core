@@ -58,8 +58,5 @@
   },
   "browserslist": [
     "defaults"
-  ],
-  "resolutions": {
-    "@regrokjs/core": "portal:/Users/marianban/projects/personal/regrokjs/core"
-  }
+  ]
 }
