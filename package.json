@@ -1,6 +1,6 @@
 {
   "name": "@regrokjs/core",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "A lightweight state management library for react with a focus on minimal boilerplate.",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
