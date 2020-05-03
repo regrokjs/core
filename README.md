@@ -15,24 +15,27 @@ npm i @regrokjs/core
 ```js
 // store.js
 
-import { createSlice, createStore } from '@regrokjs/core';
+import { createSlice, createStore, Slice } from '@regrokjs/core';
 
-const counter = createSlice({
-  initialState: {
+class CounterSlice extends Slice {
+  // a state must be an object
+  state = {
     value: 0,
-  },
+  }
   // action
   increment() {
-    this.state.value++;
-  },
+    this.setState(state => {
+      state.value++;
+    });
+  }
   // selector
   getComputedValue() {
     return this.state.value * 10;
-  },
+  }
 });
 
 export const store = createStore({
-  counter,
+  counter: createSlice(CounterSlice),
 });
 ```
 
@@ -76,19 +79,23 @@ export const App = () => {
 
 ## Store
 
-In Regrok you can define one root store and multiple slices. When defining a store you should keep in mind the following conventions:
-
 - there can be only **one root store**
-- a store can have multiple slices
-- a **slice** is defined as an object containing
-  - `initialState` field
-    - must be an object - can't be a primitive type
-    - initialized to an empty object if omitted
-  - **actions**
-    - functions which serve used for updating your state
-    - each function which is not prefixed by get is an action
+  - a root store is created by calling `createStore({})` and passing a dictionary of slices (a POJO containing slices as keys)
+- a **slice** is a sub-state of the global state
+
+  - it's defined as a class and must extend from the `Slice` base class
+  - the state can be initialized in constructor or by using class property syntax
+    - by default it's initialized to an empty object
+    - must be an object (primitives or arrays are not supported)
+  - each slice has its own state which can be accessed by `this.state`
+  - you can update state by calling `this.setState` and passing an updater callback.
+
+  <!-- - **actions**
+  - functions which are used for updating your state
+  - update state by calling `setState`
   - **selectors**
     - functions for selecting a subset of a slice's state or for returning computed/derived values
     - their name must start with a **get** prefix
     - selector results are automatically memomized for better performance
     - they can't modify state
+  - API -->

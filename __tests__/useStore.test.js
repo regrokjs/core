@@ -1,41 +1,53 @@
 import * as React from 'react';
 import memoize from 'nano-memoize';
 import produce from 'immer';
-import { RegrokProvider, createSlice, createStore, useStore } from '../src';
+import {
+  RegrokProvider,
+  createSlice,
+  createStore,
+  useStore,
+  Slice,
+} from '../src';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { Errors } from '../src/constants';
 
-const counter = createSlice({
-  initialState: {
-    value: 0,
-  },
+class CounterSlice extends Slice {
+  state = { value: 0 };
   increment() {
-    this.state.value++;
-  },
+    this.setState((state) => {
+      state.value++;
+    });
+  }
   set(value, valueTwo) {
-    this.state.value = valueTwo;
-  },
+    this.setState((state) => {
+      state.value = valueTwo;
+    });
+  }
   getValue() {
     return this.state.value;
-  },
+  }
   getInvalid() {
     this.state.value++;
     return this.state.value;
-  },
-});
+  }
+}
 
-const counterTwo = createSlice({
-  initialState: {
-    value: 0,
-  },
+const counter = createSlice(CounterSlice);
+
+class CounterTwoSlice extends Slice {
+  state = { value: 0 };
   increment() {
-    this.state.value++;
-  },
+    this.setState((state) => {
+      state.value++;
+    });
+  }
   getValue() {
     return this.state.value;
-  },
-});
+  }
+}
+
+const counterTwo = createSlice(CounterTwoSlice);
 
 const store = createStore({
   counter,
@@ -69,7 +81,18 @@ const makeWrapper = (store) => ({ children }) => (
   <RegrokProvider store={store}>{children}</RegrokProvider>
 );
 
+const renderHookAsync = async () => {
+  let result = {};
+  await act(async () => {
+    result = renderHook(() => useStore(store.counter), {
+      wrapper: makeWrapper(store),
+    });
+  });
+  return result;
+};
+
 describe('Regrok', () => {
+  // TODO: add test for mare complex initial state (not failing for nested prop)
   it('can read state', () => {
     const { result } = renderHook(() => useStore(store.counter), {
       wrapper: makeWrapper(store),
@@ -157,10 +180,10 @@ describe('selector', () => {
     expect(() => getInvalid()).toThrow();
   });
   it('memoizes values', () => {
-    const getValueSpy = jest.spyOn(store.counter.value, 'getValue');
     const { result } = renderHook(() => useStore(store.counter), {
       wrapper: makeWrapper(store),
     });
+    const getValueSpy = jest.spyOn(result.current.__instance, 'getValue');
     let increment, getValue;
     [, { increment }, { getValue }] = result.current;
     expect(getValue()).toBe(0);
@@ -176,14 +199,14 @@ describe('selector', () => {
     getValueSpy.mockRestore();
   });
   it('memoizes values per store', () => {
-    const getValueSpy = jest.spyOn(store.counter.value, 'getValue');
-    const getValueSpyTwo = jest.spyOn(store.counterTwo.value, 'getValue');
     const { result } = renderHook(() => useStore(store.counter), {
       wrapper: makeWrapper(store),
     });
     const { result: resultTwo } = renderHook(() => useStore(store.counterTwo), {
       wrapper: makeWrapper(store),
     });
+    const getValueSpy = jest.spyOn(result.current.__instance, 'getValue');
+    const getValueSpyTwo = jest.spyOn(resultTwo.current.__instance, 'getValue');
     let increment, getValue;
     [, { increment }, { getValue }] = result.current;
     expect(getValue()).toBe(0);
