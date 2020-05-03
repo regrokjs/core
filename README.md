@@ -90,6 +90,11 @@ export const App = () => {
   - each slice has its own state which can be accessed by `this.state`
   - you can update state by calling `this.setState` and passing an updater callback.
 
+## Examples
+
+- [Counter](https://github.com/regrokjs/examples/tree/master/counter)
+- [Todomvc](https://github.com/regrokjs/examples/tree/master/todomvc)
+
   <!-- - **actions**
   - functions which are used for updating your state
   - update state by calling `setState`
